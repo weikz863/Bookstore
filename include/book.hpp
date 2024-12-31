@@ -1,17 +1,31 @@
 #pragma once
 
+
+#include <compare>
 #ifndef BOOK_HPP_
 #define BOOK_HPP_
 
 #include "file.hpp"
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <iomanip>
 
 struct BookInfo : BasicFileStorage {
   static constexpr int NAMESIZE = 61;
   char ISBN[NAMESIZE], name[NAMESIZE], author[NAMESIZE], keywords[NAMESIZE];
   double price;
   int quantity;
+  void print() const {
+    std::cout << ISBN << '\t' << name << '\t' << author << '\t' << 
+        std::fixed << std::setprecision(2) << price << '\t' << quantity << '\n';
+  }
+  std::weak_ordering operator <=> (const BookInfo &x) const {
+    int ret = strcmp(ISBN, x.ISBN);
+    if (ret < 0) return std::weak_ordering::less;
+    else if (ret == 0) return std::weak_ordering::equivalent;
+    else return std::weak_ordering::greater;
+  }
   int constexpr size() const {
     return 4 * NAMESIZE + sizeof(double) + sizeof(int);
   }
@@ -36,8 +50,17 @@ struct BookInfo : BasicFileStorage {
 struct Queryable : BasicFileStorage {
   static constexpr int STRLEN = BookInfo::NAMESIZE;
   static constexpr int SIZE = STRLEN + sizeof(int);
-  char index[STRLEN] = "";
-  int value = 0;
+  char index[STRLEN];
+  int value;
+  Queryable() : index(""), value(0) {};
+  Queryable(bool x) {
+    index[0] = (x ? 0x7f : 0x01);
+    index[1] = '\0';
+  }
+  Queryable(const string &s, bool x) {
+    strcpy(index, s.c_str());
+    value = (x ? INT_MAX : -1);
+  }
   int constexpr size() const {
     return SIZE;
   }
