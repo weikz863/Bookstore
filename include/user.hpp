@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifndef USER_HPP_
 #define USER_HPP_
 
@@ -12,8 +11,7 @@
 #include "file.hpp"
 #include "book.hpp"
 
-extern BookManager book_manager;
-auto & selected = book_manager.selected;
+extern Vector<ID> & selected;
 
 struct UserData : BasicFileStorage {
   static int constexpr STRLEN = 31;

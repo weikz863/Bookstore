@@ -6,6 +6,7 @@ using std::cout;
 using std::endl;
 
 extern UserManager user_manager;
+extern BookManager book_manager;
 
 int main(void) {
   Vector<Queryable> ve("tempfile");

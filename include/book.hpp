@@ -4,11 +4,8 @@
 #define BOOK_HPP_
 
 #include "file.hpp"
-#include "user.hpp"
 #include <cassert>
 #include <fstream>
-
-extern UserManager user_manager;
 
 struct BookInfo : BasicFileStorage {
   static constexpr int NAMESIZE = 61;
@@ -109,12 +106,8 @@ struct BookManager {
     AUTHOR = 2 * BookInfo::NAMESIZE,
     KEYWORD = 3 * BookInfo::NAMESIZE,
   };
-  bool show(PosType x, const string &s) {
-    assert(s.size() <= (x == PosType::ISBN ? 20 : 60));
-    if (user_manager.current_privilege() < 1) return false;
-    if (s == "") return false;
-    if (x == PosType::KEYWORD && s.find('|') != string::npos) return false;
-  }
+  BookManager();
+  bool show(PosType, const string &);
 };
 
 #endif
