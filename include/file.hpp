@@ -125,14 +125,17 @@ class BlockList {
 public:
   struct iterator {
     fstream &file;
-    int const pos; 
+    int const pos;
+    Data * const ptr;
     void assign(const Data &x) {
       file.seekg(pos);
       x.writeto(file);
+      if (!ptr) *ptr = x;
     }
     void read(Data &x) {
       file.seekg(pos);
       x.readfrom(file);
+      if (!ptr) assert(*ptr == x);
     }
   };
   BlockList (const char *s) : filename(s) {}; 
@@ -240,10 +243,12 @@ public:
       file.seekp(blocks[i].pos + ADDITIONAL);
       for (int j = 0; j < blocks[i].size; j++) {
         x.readfrom(file);
-        if (x >= begin) return iterator(file, int(file.tellg()) - x.size());
+        if (x >= begin) {
+          return iterator(file, int(file.tellg()) - x.size(), j == 0 ? &blocks[i].first : nullptr);
+        }
       }
     }
-    return iterator(file, -1);
+    return iterator(file, -1, nullptr);
   }
   void delet(const Data &x) {
     int blockid = 0; 

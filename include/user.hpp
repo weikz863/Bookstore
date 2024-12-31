@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <file.hpp>
+#include <vector>
 
 struct UserData : BasicFileStorage {
   static int constexpr STRLEN = 31;
@@ -90,6 +91,7 @@ struct UserManager {
     ret.read(dat);
     dat.login_cnt--;
     ret.assign(dat);
+    return true;
   }
   bool add_user(const UserData &u) {
     if (login.empty()) {
@@ -97,12 +99,39 @@ struct UserManager {
     } else {
       if (u.privilege >= login.back().privilege) return false;
     }
-    db::iterator ret = account.find_one(UserData(u.id, 0));
-    if (ret.pos >= 0) {
-      UserData t;
-      ret.read(t);
-      if (strcmp(t.id, u.id) == 0) return false;
-    }
+    vector<UserData> ret = account.find(UserData(u.id, 0), UserData(u.id, 1));
+    if (ret.size()) return false;
     account.insert(u);
+    return true;
+  }
+  bool passwd(const string &userid, const string &cur, const string &newp) {
+    assert(newp.size() <= 30);
+    if (login.empty()) {
+      return false;
+    }
+    db::iterator ret = account.find_one(UserData(userid, 0));
+    if (ret.pos < 0) return false;
+    UserData t;
+    ret.read(t);
+    if (t.id != userid) return false;
+    if (cur == "") {
+      if (login.back().privilege < 7) return false;
+    } else {
+      if (t.password != cur) return false;
+    }
+    strcpy(t.password, newp.c_str());
+    ret.assign(t);
+    return true;
+  }
+  bool delet(const string &userid) {
+    if (login.empty() || login.back().privilege < 7) {
+      return false;
+    }
+    db::iterator ret = account.find_one(UserData(userid, 0));
+    if (ret.pos < 0) return false;
+    UserData t;
+    ret.read(t);
+    if (t.id != userid || t.login_cnt) return false;
+    account.delet(t);
   }
 };
