@@ -1,4 +1,11 @@
 #include "file.hpp"
+#include "user.hpp"
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+extern UserManager user_manager;
 
 int main(void) {
   Vector<Map> ve("tempfile");

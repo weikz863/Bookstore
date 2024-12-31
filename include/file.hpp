@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef FILE_HPP_
+#define FILE_HPP_
+
 #include <cstddef>
 #include <ios>
 #include <iostream>
@@ -330,3 +335,5 @@ public:
     return siz == 0;
   }
 };
+
+#endif

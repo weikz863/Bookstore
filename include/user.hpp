@@ -1,7 +1,14 @@
+#pragma once
+
+#include <cstring>
+#ifndef USER_HPP_
+#define USER_HPP_
+
+#include <compare>
 #include <algorithm>
 #include <cassert>
-#include <file.hpp>
 #include <vector>
+#include "file.hpp"
 
 struct UserData : BasicFileStorage {
   static int constexpr STRLEN = 31;
@@ -31,6 +38,15 @@ struct UserData : BasicFileStorage {
     x.write(username, STRLEN);
     x.write(reinterpret_cast<const char*>(&privilege), sizeof(int));
     x.write(reinterpret_cast<const char*>(&login_cnt), sizeof(int));
+  }
+  bool operator == (const UserData &x) const {
+    return strcmp(id, x.id) == 0;
+  }
+  std::weak_ordering operator <=> (const UserData &x) const {
+    int t = strcmp(id, x.id);
+    if (t < 0) return std::weak_ordering::less;
+    else if (t == 0) return std::weak_ordering::equivalent;
+    else return std::weak_ordering::greater;
   }
 };
 struct LoginUser : BasicFileStorage {
@@ -135,3 +151,5 @@ struct UserManager {
     account.delet(t);
   }
 };
+
+#endif
