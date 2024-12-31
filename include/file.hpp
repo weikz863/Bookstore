@@ -14,9 +14,6 @@ using std::vector;
 using std::fstream;
 using std::ifstream;
 using std::ofstream;
-using std::cin;
-using std::cout;
-using std::endl;
 
 struct BasicFileStorage {
   virtual constexpr int size() const = 0;
@@ -126,6 +123,18 @@ class BlockList {
   }
 
 public:
+  struct iterator {
+    fstream &file;
+    int const pos; 
+    void assign(const Data &x) {
+      file.seekg(pos);
+      x.writeto(file);
+    }
+    void read(Data &x) {
+      file.seekg(pos);
+      x.readfrom(file);
+    }
+  };
   BlockList (const char *s) : filename(s) {}; 
   void init() {
     int blockcnt, thisblock;
@@ -222,6 +231,20 @@ public:
     }
     return ret;
   }
+  iterator find_one (const Data &begin) {
+    int blockid = 0;
+    while (blockid < blocks.size() && blocks[blockid].first < begin) blockid++;
+    blockid = std::max(blockid - 1, 0);
+    Data x;
+    for (int i = blockid; i < blocks.size(); i++) {
+      file.seekp(blocks[i].pos + ADDITIONAL);
+      for (int j = 0; j < blocks[i].size; j++) {
+        x.readfrom(file);
+        if (x >= begin) return iterator(file, int(file.tellg()) - x.size());
+      }
+    }
+    return iterator(file, -1);
+  }
   void delet(const Data &x) {
     int blockid = 0; 
     while (blockid < blocks.size() && blocks[blockid].first <= x) blockid++;
@@ -258,8 +281,9 @@ class Vector {
   static_assert(std::is_base_of<BasicFileStorage, Data>(), "");
   const char * const filename;
   fstream file{};
+  int siz;
 public:
-  Vector(const char *s) : filename(s) {};
+  Vector(const char *s) : filename(s), siz(0) {};
   void init() {
     #ifdef ONLINE_JUDGE
     file.open(filename, std::ios_base::in | std::ios_base::out | std::ios::binary);
@@ -271,14 +295,33 @@ public:
   void close() {
     file.close();
   }
+  int size() const {
+    return siz;
+  }
   Data operator[](size_t x) {
     Data ret;
     file.seekg(x * ret.size());
     ret.readfrom(file);
     return ret;
   }
+  Data back() {
+    return this->operator[](siz - 1);
+  }
   void assign(size_t x, const Data &t) {
     file.seekg(x * t.size());
     t.writeto(file);
+  }
+  void push_back(const Data &t) {
+    assign(siz, t);
+    siz++;
+  }
+  void pop_back() {
+    siz--;
+  }
+  void clear() {
+    siz = 0;
+  }
+  bool empty() const {
+    return siz == 0;
   }
 };
