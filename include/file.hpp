@@ -26,53 +26,6 @@ struct BasicFileStorage {
   virtual void writeto(fstream &) const = 0;
 };
 
-struct Map : BasicFileStorage {
-  static constexpr int STRLEN = 65;
-  static constexpr int SIZE = STRLEN + sizeof(int);
-  char index[STRLEN] = "";
-  int value = 0;
-  int constexpr size() const {
-    return SIZE;
-  }
-  void readfrom(fstream &x) {
-    x.read(index, STRLEN);
-    x.read(reinterpret_cast<char*>(&value), sizeof(int));
-  }
-  void writeto(fstream &x) const {
-    x.write(index, STRLEN);
-    x.write(reinterpret_cast<const char*>(&value), sizeof(int));
-  }
-  /*
-  Map& operator = (const Map &x) {
-    if (&x != this) {
-      strcpy(index, x.index);
-      value = x.value;
-    }
-    return *this;
-  }
-  */
-  bool operator < (const Map& x) const {
-    int f = std::strcmp(index, x.index);
-    if (f) return f < 0;
-    else return value < x.value;
-  }
-  bool operator > (const Map& x) const {
-    return x < *this;
-  }
-  bool operator <= (const Map& x) const {
-    return !(x < *this);
-  }
-  bool operator >= (const Map& x) const {
-    return !(*this < x);
-  }
-  bool operator == (const Map& x) const {
-    return value == x.value && !std::strcmp(index, x.index);
-  }
-  bool operator != (const Map& x) const {
-    return value != x.value || std::strcmp(index, x.index);
-  }
-};
-
 template<int SIZE, typename Data>
 class BlockList {
   static_assert(std::is_base_of<BasicFileStorage, Data>(), "");

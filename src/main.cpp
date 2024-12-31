@@ -8,8 +8,8 @@ using std::endl;
 extern UserManager user_manager;
 
 int main(void) {
-  Vector<Map> ve("tempfile");
-  Map tmp;
+  Vector<Queryable> ve("tempfile");
+  Queryable tmp;
   tmp.value = 1;
   strcpy(tmp.index, "tmp");
   ve.init();

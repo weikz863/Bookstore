@@ -1,14 +1,19 @@
 #pragma once
 
-#include <cstring>
+
 #ifndef USER_HPP_
 #define USER_HPP_
 
+#include <cstring>
 #include <compare>
 #include <algorithm>
 #include <cassert>
 #include <vector>
 #include "file.hpp"
+#include "book.hpp"
+
+extern BookManager book_manager;
+auto & selected = book_manager.selected;
 
 struct UserData : BasicFileStorage {
   static int constexpr STRLEN = 31;
@@ -78,6 +83,10 @@ struct UserManager {
     login.init();
     account.init();
   };
+  int current_privilege() {
+    if (login.empty()) return 0;
+    else return login.back().privilege;
+  }
   bool su (const string &id, const string &password) {
     db::iterator ret = account.find_one(UserData(id, 0));
     if (ret.pos < 0) return false;
@@ -85,7 +94,7 @@ struct UserManager {
     ret.read(t);
     if (t.id != id) return false;
     if (password == "") {
-      if (login.empty() || login.back().privilege <= t.privilege) {
+      if (current_privilege() <= t.privilege) {
         return false;
       }
     } else {
@@ -96,12 +105,14 @@ struct UserManager {
     t.login_cnt++;
     ret.assign(t);
     login.push_back(LoginUser(t));
+    selected.push_back(-1);
     return true;
   }
   bool logout() {
     if (login.empty()) return false;
     LoginUser t = login.back();
     login.pop_back();
+    selected.pop_back();
     db::iterator ret = account.find_one(UserData(t.id, 0));
     UserData dat;
     ret.read(dat);
@@ -140,7 +151,7 @@ struct UserManager {
     return true;
   }
   bool delet(const string &userid) {
-    if (login.empty() || login.back().privilege < 7) {
+    if (current_privilege() < 7) {
       return false;
     }
     db::iterator ret = account.find_one(UserData(userid, 0));
@@ -149,6 +160,7 @@ struct UserManager {
     ret.read(t);
     if (t.id != userid || t.login_cnt) return false;
     account.delet(t);
+    return true;
   }
 };
 
