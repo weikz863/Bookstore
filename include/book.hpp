@@ -1,21 +1,25 @@
 #pragma once
 
-
-#include <compare>
 #ifndef BOOK_HPP_
 #define BOOK_HPP_
 
-#include "file.hpp"
+#include <compare>
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include "file.hpp"
 
 struct BookInfo : BasicFileStorage {
   static constexpr int NAMESIZE = 61;
   char ISBN[NAMESIZE], name[NAMESIZE], author[NAMESIZE], keywords[NAMESIZE];
   double price;
   int quantity;
+  BookInfo() : BookInfo("") {};
+  BookInfo(const string &s) : name(""), author(""), keywords(""),
+      price(0.0), quantity(0) {
+    strcpy(ISBN, s.c_str());
+  }
   void print() const {
     std::cout << ISBN << '\t' << name << '\t' << author << '\t' << 
         std::fixed << std::setprecision(2) << price << '\t' << quantity << '\n';
@@ -57,9 +61,8 @@ struct Queryable : BasicFileStorage {
     index[0] = (x ? 0x7f : 0x01);
     index[1] = '\0';
   }
-  Queryable(const string &s, bool x) {
+  Queryable(const string &s, int x) : value(x) {
     strcpy(index, s.c_str());
-    value = (x ? INT_MAX : -1);
   }
   int constexpr size() const {
     return SIZE;
@@ -105,6 +108,7 @@ struct Queryable : BasicFileStorage {
 
 struct ID : BasicFileStorage {
   int value;
+  ID() : ID(0) {};
   ID(int x) : value(x) {};
   int constexpr size() const {
     return sizeof(int);
@@ -128,9 +132,14 @@ struct BookManager {
     NAME = BookInfo::NAMESIZE, 
     AUTHOR = 2 * BookInfo::NAMESIZE,
     KEYWORD = 3 * BookInfo::NAMESIZE,
+    PRICE = 4 * BookInfo::NAMESIZE,
+    QUANTITY = 4 * BookInfo::NAMESIZE + sizeof(double),
   };
   BookManager();
   bool show(PosType, const string &);
+  bool select(const string&);
+  double buy(const string&, int);
+  bool modify(PosType x, const string &s);
 };
 
 #endif
