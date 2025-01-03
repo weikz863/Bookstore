@@ -1,5 +1,6 @@
 #include "file.hpp"
 #include "user.hpp"
+#include "log.hpp"
 
 using std::cin;
 using std::cout;
@@ -7,6 +8,7 @@ using std::endl;
 
 extern UserManager user_manager;
 extern BookManager book_manager;
+extern LogManager log_manager;
 
 int main(void) {
   Vector<Queryable> ve("tempfile");
