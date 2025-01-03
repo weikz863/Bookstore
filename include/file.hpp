@@ -124,6 +124,9 @@ public:
   void close() {
     file.close();
   }
+  bool empty() const {
+    return blocks.empty();
+  }
   void insert(const Data &x) {
     if (blocks.empty()) {
       newblock(0, vector<Data>{x});

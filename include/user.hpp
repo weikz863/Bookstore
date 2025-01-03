@@ -20,10 +20,18 @@ struct UserData : BasicFileStorage {
   int privilege, login_cnt;
   UserData() = default;
   UserData(const string &s, int mode) : password("") {
-    assert(s.size() <= 30);
+    assert(s.size() <= 30 && s.size() > 0);
     strcpy(id, s.c_str());
     assert(password[1] == '\0');
     password[0] = (mode ? 0x7f : 0x01);
+  }
+  UserData(const string &id_, const string &passwd_, const string &username_, 
+      int priv_) : privilege(priv_), login_cnt(0) {
+    assert(id_.size() <= 20 && passwd_.size() <= 60 && username_.size() <= 60);
+    assert(id_.size() > 0 && passwd_.size() > 0 && username_.size() > 0);
+    strcpy(id, id_.c_str());
+    strcpy(password, passwd_.c_str());
+    strcpy(username, username_.c_str());
   }
   constexpr int size() const {
     return SIZE;
@@ -80,6 +88,9 @@ struct UserManager {
   UserManager() : login("login"), account("account") {
     login.init();
     account.init();
+    if (account.empty()) {
+      account.insert(UserData("root", "sjtu", "root", 7));
+    }
   };
   int current_privilege() {
     if (login.empty()) return 0;
@@ -119,6 +130,7 @@ struct UserManager {
     return true;
   }
   bool add_user(const UserData &u) {
+    assert(u.privilege == 1 || u.privilege == 3 || u.privilege == 7);
     if (login.empty()) {
       if (u.privilege > 1) return false;
     } else {

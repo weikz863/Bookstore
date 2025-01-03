@@ -1,6 +1,10 @@
-#include "file.hpp"
+#include "book.hpp"
 #include "user.hpp"
 #include "log.hpp"
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
 
 using std::cin;
 using std::cout;
@@ -10,18 +14,22 @@ extern UserManager user_manager;
 extern BookManager book_manager;
 extern LogManager log_manager;
 
+constexpr const char *fail = "Invalid\n";
+
 int main(void) {
-  Vector<Queryable> ve("tempfile");
-  Queryable tmp;
-  tmp.value = 1;
-  strcpy(tmp.index, "tmp");
-  ve.init();
-  ve.assign(0, tmp);
-  ve.assign(3, tmp);
-  tmp = ve[2];
-  cout << tmp.value << endl;
-  tmp = ve[3];
-  cout << tmp.value << endl;
-  ve.close();
+  std::string s;
+  while (cin) {
+    std::getline(cin, s);
+    std::stringstream ss(std::move(s));
+    ss >> s;
+    if (s.empty()) continue;
+    if (s == "quit" || s == "exit") {
+      ss >> s;
+      if (!ss) return 0;
+      else cout << fail;
+    } else if (s == "su") {
+      
+    }
+  }
   return 0;
 }

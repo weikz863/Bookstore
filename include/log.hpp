@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #ifndef LOG_HPP_
 #define LOG_HPP_
 
