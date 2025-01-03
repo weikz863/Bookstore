@@ -1,3 +1,3 @@
 #include "log.hpp"
 
-LogManager log_handler;
+LogManager log_manager;

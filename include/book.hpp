@@ -121,6 +121,8 @@ struct ID : BasicFileStorage {
   }
 };
 
+vector<string> parse(const char * const keyword);
+
 struct BookManager {
   typedef BlockList<50, Queryable> database;
   Vector<BookInfo> books;
